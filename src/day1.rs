@@ -1,5 +1,3 @@
-// use std::collections::HashMap;
-
 #[aoc_generator(day1)]
 pub fn input_generator(input: &str) -> (Vec<u32>, Vec<u32>) {
     let mut list_left = Vec::new();
