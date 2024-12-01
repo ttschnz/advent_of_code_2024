@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+// use std::collections::HashMap;
 
 #[aoc_generator(day1)]
 pub fn input_generator(input: &str) -> (Vec<u32>, Vec<u32>) {
@@ -19,8 +19,8 @@ pub fn get_total_distance(input: &(Vec<u32>, Vec<u32>)) -> u32 {
     let mut list1 = input.0.clone();
     let mut list2 = input.1.clone();
 
-    list1.sort();
-    list2.sort();
+    list1.sort_unstable();
+    list2.sort_unstable();
 
     list1
         .iter()
@@ -33,13 +33,20 @@ pub fn get_similarity_score(input: &(Vec<u32>, Vec<u32>)) -> u32 {
     let list1 = &input.0;
     let list2 = &input.1;
 
-    let mut map = HashMap::new();
+    let max_val = list2.iter().max().unwrap_or(&0);
+
+    let mut map: Vec<u32> = vec![0; (max_val + 1) as usize];
+
     for item in list2 {
-        map.entry(item).and_modify(|count| *count += 1).or_insert(1);
+        map[*item as usize] += 1;
     }
 
     list1.iter().fold(0, |acc, item| {
-        acc + map.get(item).map(|value| value * item).unwrap_or(0)
+        acc + if item <= max_val {
+            map[*item as usize] * item
+        } else {
+            0
+        }
     })
 }
 
