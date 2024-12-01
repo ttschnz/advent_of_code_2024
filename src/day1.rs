@@ -5,10 +5,12 @@ pub fn input_generator(input: &str) -> (Vec<u32>, Vec<u32>) {
     let mut list1 = Vec::new();
     let mut list2 = Vec::new();
 
+    let parse = |s: &str| s.trim().parse::<u32>().unwrap();
     for line in input.lines() {
-        let mut locations = line.trim().split("   ").map(|d| d.parse::<u32>().unwrap());
-        list1.push(locations.next().unwrap());
-        list2.push(locations.next().unwrap());
+        let (left, right) = line.split_once(' ').unwrap();
+
+        list1.push(parse(left));
+        list2.push(parse(right));
     }
 
     (list1, list2)
