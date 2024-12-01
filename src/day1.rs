@@ -23,9 +23,10 @@ pub fn get_total_distance(input: &(Vec<u32>, Vec<u32>)) -> u32 {
     list_right.sort_unstable();
 
     list_left
-        .iter()
+        .into_iter()
         .zip(list_right)
-        .fold(0, |acc, (a, b)| acc + b.abs_diff(*a))
+        .map(|(a, b)| a.abs_diff(b))
+        .sum()
 }
 
 #[aoc(day1, part2)]
