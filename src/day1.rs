@@ -12,6 +12,12 @@ pub fn get_total_distance_direct(input: &str) -> u32 {
         .sum()
 }
 
+#[aoc(day1, part2, Direct)]
+pub fn get_similarity_score_direct(input: &str) -> u32 {
+    let generated = input_generator(input);
+    get_similarity_score(&generated)
+}
+
 #[aoc_generator(day1)]
 pub fn input_generator(input: &str) -> (Vec<u32>, Vec<u32>) {
     let mut list_left = Vec::new();
@@ -64,6 +70,9 @@ pub fn get_similarity_score(input: &(Vec<u32>, Vec<u32>)) -> u32 {
         }
     })
 }
+
+pub use get_similarity_score_direct as part2;
+pub use get_total_distance_direct as part1;
 
 #[cfg(test)]
 mod test {
