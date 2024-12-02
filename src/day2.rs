@@ -85,6 +85,30 @@ pub fn count_safe_reports_delta(input: &Vec<Vec<u32>>) -> u32 {
         .count() as u32
 }
 
+#[aoc(day2, part1, Iterator)]
+pub fn count_safe_reports_iterator(input: &Vec<Vec<u32>>) -> u32 {
+    input
+        .iter()
+        .filter(|report| {
+            report
+                .windows(2)
+                .map(|data| data[1] as i64 - data[0] as i64)
+                .try_fold(None, |last_signum, curr_delta| {
+                    let curr_signum = curr_delta.signum();
+                    if last_signum.is_some_and(|last_signum| last_signum != curr_signum) {
+                        return Err(());
+                    }
+
+                    if !(1..=3).contains(&curr_delta.abs()) {
+                        return Err(());
+                    }
+                    Ok(Some(curr_signum))
+                })
+                .is_ok()
+        })
+        .count() as u32
+}
+
 #[aoc(day2, part2)]
 pub fn count_safe_reports_damped(input: &Vec<Vec<u32>>) -> u32 {
     input
@@ -116,7 +140,10 @@ pub fn count_safe_reports_damped(input: &Vec<Vec<u32>>) -> u32 {
 #[cfg(test)]
 mod test {
 
-    use super::{count_safe_reports, count_safe_reports_damped, count_safe_reports_delta};
+    use super::{
+        count_safe_reports, count_safe_reports_damped, count_safe_reports_delta,
+        count_safe_reports_iterator,
+    };
 
     #[test]
     fn sample1() {
@@ -143,6 +170,13 @@ mod test {
                 "normal delta test for {:?} failed.",
                 sample
             );
+            assert_eq!(
+                count_safe_reports_iterator(&vec![sample.clone()]),
+                if expected_normal { 1 } else { 0 },
+                "normal delta test for {:?} failed.",
+                sample
+            );
+
             assert_eq!(
                 count_safe_reports_damped(&vec![sample.clone()]),
                 if expected_damped { 1 } else { 0 },
