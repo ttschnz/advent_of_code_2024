@@ -63,11 +63,14 @@ pub fn count_safe_reports_delta(input: &Vec<Vec<u32>>) -> u32 {
     input
         .iter()
         .filter(|report| {
-            let mut last_delta = None;
+            let mut last_delta_signum = None;
             for data in report.windows(2) {
                 let new_delta = data[1] as i64 - data[0] as i64;
+                let new_delta_signum = new_delta.signum();
 
-                if new_delta.signum() != last_delta.unwrap_or(new_delta).signum() {
+                if last_delta_signum
+                    .is_some_and(|last_delta_signum| last_delta_signum != new_delta_signum)
+                {
                     return false;
                 }
 
@@ -75,9 +78,9 @@ pub fn count_safe_reports_delta(input: &Vec<Vec<u32>>) -> u32 {
                     return false;
                 }
 
-                last_delta = Some(new_delta);
+                last_delta_signum = Some(new_delta_signum);
             }
-            true
+            return true;
         })
         .count() as u32
 }
