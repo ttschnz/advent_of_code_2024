@@ -1,3 +1,17 @@
+#[aoc(day1, part1, Direct)]
+pub fn get_total_distance_direct(input: &str) -> u32 {
+    let (mut list_left, mut list_right) = input_generator(input);
+
+    list_left.sort_unstable();
+    list_right.sort_unstable();
+
+    list_left
+        .into_iter()
+        .zip(list_right)
+        .map(|(a, b)| a.abs_diff(b))
+        .sum()
+}
+
 #[aoc_generator(day1)]
 pub fn input_generator(input: &str) -> (Vec<u32>, Vec<u32>) {
     let mut list_left = Vec::new();
@@ -14,8 +28,8 @@ pub fn input_generator(input: &str) -> (Vec<u32>, Vec<u32>) {
     (list_left, list_right)
 }
 
-#[aoc(day1, part1)]
-pub fn get_total_distance(input: &(Vec<u32>, Vec<u32>)) -> u32 {
+#[aoc(day1, part1, Parsed)]
+pub fn get_total_distance_parsed(input: &(Vec<u32>, Vec<u32>)) -> u32 {
     let mut list_left = input.0.clone();
     let mut list_right = input.1.clone();
 
@@ -53,13 +67,13 @@ pub fn get_similarity_score(input: &(Vec<u32>, Vec<u32>)) -> u32 {
 
 #[cfg(test)]
 mod test {
-    use super::{get_similarity_score, get_total_distance};
+    use super::{get_similarity_score, get_total_distance_parsed};
 
     #[test]
     fn sample1() {
         let sample = (vec![3, 4, 2, 1, 3, 3], vec![4, 3, 5, 3, 9, 3]);
 
-        assert_eq!(get_total_distance(&sample), 11);
+        assert_eq!(get_total_distance_parsed(&sample), 11);
         assert_eq!(get_similarity_score(&sample), 31);
     }
 }
