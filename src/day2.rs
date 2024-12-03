@@ -1,4 +1,15 @@
 use std::cmp::Ordering;
+#[aoc(day2, part1, DirectIterator)]
+pub fn count_safe_reports_direct(input: &str) -> u32 {
+    count_safe_reports_iterator(&input_generator(input))
+}
+#[aoc(day2, part2, DirectIterator)]
+pub fn count_safe_reports_damped_direct(input: &str) -> u32 {
+    count_safe_reports_damped_iterator(&input_generator(input))
+}
+
+pub use count_safe_reports_damped_direct as part2;
+pub use count_safe_reports_direct as part1;
 
 #[aoc_generator(day2)]
 pub fn input_generator(input: &str) -> Vec<Vec<u32>> {
@@ -109,7 +120,7 @@ pub fn count_safe_reports_iterator(input: &Vec<Vec<u32>>) -> u32 {
         .count() as u32
 }
 
-#[aoc(day2, part2)]
+#[aoc(day2, part2, Delta)]
 pub fn count_safe_reports_damped(input: &Vec<Vec<u32>>) -> u32 {
     input
         .into_iter()
@@ -121,6 +132,33 @@ pub fn count_safe_reports_damped(input: &Vec<Vec<u32>>) -> u32 {
                 for n in 0..report.len() {
                     // create an iterator without the nth element
                     if count_safe_reports_delta(&vec![single_report
+                        .clone()
+                        .enumerate()
+                        .filter(move |(i, _)| *i != n)
+                        .map(|(_, x)| *x)
+                        .collect::<Vec<_>>()])
+                        == 1
+                    {
+                        return true;
+                    }
+                }
+                false
+            }
+        })
+        .count() as u32
+}
+#[aoc(day2, part2, Iterator)]
+pub fn count_safe_reports_damped_iterator(input: &Vec<Vec<u32>>) -> u32 {
+    input
+        .into_iter()
+        .filter(|report| {
+            if count_safe_reports_iterator(&vec![(**report).clone()]) == 1 {
+                return true;
+            } else {
+                let single_report = report.iter();
+                for n in 0..report.len() {
+                    // create an iterator without the nth element
+                    if count_safe_reports_iterator(&vec![single_report
                         .clone()
                         .enumerate()
                         .filter(move |(i, _)| *i != n)
