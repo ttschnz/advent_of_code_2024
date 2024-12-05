@@ -1,5 +1,17 @@
 use ndarray::Array2;
 
+#[aoc(day4, part1, Direct)]
+pub fn count_xmas_direct(input: &str) -> u32 {
+    count_xmas(&generate_data(input))
+}
+#[aoc(day4, part2, Direct)]
+pub fn count_cross_mas_direct(input: &str) -> u32 {
+    count_cross_mas(&generate_data(input))
+}
+
+pub use count_cross_mas_direct as part2;
+pub use count_xmas_direct as part1;
+
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum XMasChar {
     X,
@@ -141,9 +153,6 @@ pub fn count_cross_mas(input: &Array2<XMasChar>) -> u32 {
         .count() as u32
 }
 
-pub use count_cross_mas as part2;
-pub use count_xmas as part1;
-
 #[cfg(test)]
 mod test {
     use super::{count_cross_mas, count_xmas, generate_data};
@@ -163,7 +172,7 @@ mod test {
             18
         )
     }
-    // 2035 too high
+
     #[test]
     fn part2() {
         assert_eq!(
