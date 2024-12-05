@@ -1,7 +1,7 @@
 use ndarray::Array2;
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
-enum XMasChar {
+pub enum XMasChar {
     X,
     M,
     A,
@@ -81,7 +81,7 @@ fn get_xmas_directions(index: &(usize, usize), dim: &(usize, usize)) -> Vec<(isi
 static XMAS_ORDER: [XMasChar; 4] = [XMasChar::X, XMasChar::M, XMasChar::A, XMasChar::S];
 
 #[aoc(day4, part1)]
-fn count_xmas(input: &Array2<XMasChar>) -> u32 {
+pub fn count_xmas(input: &Array2<XMasChar>) -> u32 {
     let dim = input.dim();
     input
         .indexed_iter()
@@ -115,7 +115,7 @@ fn get_cross_mas_directions(index: &(usize, usize), dim: &(usize, usize)) -> Vec
 }
 
 #[aoc(day4, part2)]
-fn count_cross_mas(input: &Array2<XMasChar>) -> u32 {
+pub fn count_cross_mas(input: &Array2<XMasChar>) -> u32 {
     let dim = input.dim();
     input
         .indexed_iter()
@@ -140,6 +140,9 @@ fn count_cross_mas(input: &Array2<XMasChar>) -> u32 {
         })
         .count() as u32
 }
+
+pub use count_cross_mas as part2;
+pub use count_xmas as part1;
 
 #[cfg(test)]
 mod test {
