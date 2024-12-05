@@ -103,9 +103,47 @@ fn count_xmas(input: &Array2<XMasChar>) -> u32 {
         .sum()
 }
 
+fn get_cross_mas_directions(index: &(usize, usize), dim: &(usize, usize)) -> Vec<(isize, isize)> {
+    let all_directions_allowed =
+        index.0 >= 1 && index.0 < dim.0 - 1 && index.1 >= 1 && index.1 < dim.1 - 1;
+
+    if all_directions_allowed {
+        vec![(-1, -1), (-1, 1), (1, -1), (1, 1)]
+    } else {
+        vec![]
+    }
+}
+
+#[aoc(day4, part2)]
+fn count_cross_mas(input: &Array2<XMasChar>) -> u32 {
+    let dim = input.dim();
+    input
+        .indexed_iter()
+        .filter(|(_, &ref value)| *value == XMasChar::A)
+        .filter(|(index, _)| {
+            get_cross_mas_directions(&index, &dim)
+                .iter()
+                .fold((0, 0), |mut acc, direction| {
+                    match input[(
+                        (index.0 as isize + direction.0) as usize,
+                        (index.1 as isize + direction.1) as usize,
+                    )] {
+                        XMasChar::X => {}
+                        XMasChar::M => acc.0 += 1,
+                        XMasChar::A => {}
+                        XMasChar::S => acc.1 += 1,
+                    }
+                    acc
+                })
+                == (2, 2)
+                && input[(index.0 + 1, index.1 + 1)] != input[(index.0 - 1, index.1 - 1)]
+        })
+        .count() as u32
+}
+
 #[cfg(test)]
 mod test {
-    use super::{count_xmas, generate_data};
+    use super::{count_cross_mas, count_xmas, generate_data};
     #[test]
     fn generator() {
         println!(
@@ -120,6 +158,14 @@ mod test {
         assert_eq!(
             count_xmas(&generate_data("MMMSXXMASM\nMSAMXMSMSA\nAMXSXMAAMM\nMSAMASMSMX\nXMASAMXAMM\nXXAMMXXAMA\nSMSMSASXSS\nSAXAMASAAA\nMAMMMXMMMM\nMXMXAXMASX")),
             18
+        )
+    }
+    // 2035 too high
+    #[test]
+    fn part2() {
+        assert_eq!(
+            count_cross_mas(&generate_data("MMMSXXMASM\nMSAMXMSMSA\nAMXSXMAAMM\nMSAMASMSMX\nXMASAMXAMM\nXXAMMXXAMA\nSMSMSASXSS\nSAXAMASAAA\nMAMMMXMMMM\nMXMXAXMASX")),
+            9
         )
     }
 }
