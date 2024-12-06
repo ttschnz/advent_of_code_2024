@@ -1,9 +1,7 @@
+use ndarray::Array2;
 #[cfg(test)]
 use std::fmt::Display;
-
 use std::sync::{Arc, RwLock};
-
-use ndarray::Array2;
 
 #[derive(Debug, Copy, Clone)]
 enum Direction {
@@ -58,6 +56,12 @@ impl Display for GuardMapItem {
 }
 
 type GuardMap = Array2<GuardMapItem>;
+
+#[aoc(day6, part1, Direct)]
+fn count_distinct_fields_direct(input: &str) -> u32 {
+    let (mut map, pos) = generate_map(input);
+    walk_map_recursive(&mut map, pos)
+}
 
 #[aoc_generator(day6)]
 fn generate_map(input: &str) -> (GuardMap, (usize, usize)) {
@@ -151,7 +155,7 @@ fn walk_map_recursive(guard_map: &mut GuardMap, mut guard_position: (usize, usiz
     }
 }
 
-#[aoc(day6, part1, Thingy)]
+#[aoc(day6, part1)]
 fn count_distinct_fields((guard_map, guard_position): &(GuardMap, (usize, usize))) -> u32 {
     let mut guard_map = guard_map.clone();
     walk_map_recursive(&mut guard_map, *guard_position)
