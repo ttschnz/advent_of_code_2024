@@ -111,7 +111,7 @@ fn generate_map(input: &str) -> (GuardMap, (usize, usize)) {
     (map, pos)
 }
 
-fn walk_map_recursive(guard_map: &mut GuardMap, mut guard_position: (usize, usize)) {
+fn walk_map_recursive(guard_map: &mut GuardMap, mut guard_position: (usize, usize)) -> u32 {
     let direction = match guard_map[guard_position] {
         GuardMapItem::Guard { direction } => direction,
         _ => unreachable!(),
@@ -122,38 +122,39 @@ fn walk_map_recursive(guard_map: &mut GuardMap, mut guard_position: (usize, usiz
         (guard_position.0 as isize + direction_vector.0) as usize,
         (guard_position.1 as isize + direction_vector.1) as usize,
     );
-    if let Some(item) = guard_map.get_mut(new_position) {
-        match item {
-            GuardMapItem::Covered | GuardMapItem::Empty => {
-                *item = GuardMapItem::Guard { direction };
+    if let Some(item) = guard_map.get(new_position) {
+        let newly_covered = match item {
+            GuardMapItem::Covered => {
+                guard_map[new_position] = GuardMapItem::Guard { direction };
                 guard_map[guard_position] = GuardMapItem::Covered;
                 guard_position = new_position;
+                0
+            }
+            GuardMapItem::Empty => {
+                guard_map[new_position] = GuardMapItem::Guard { direction };
+                guard_map[guard_position] = GuardMapItem::Covered;
+                guard_position = new_position;
+                1
             }
             GuardMapItem::Obstruction => {
                 guard_map[guard_position] = GuardMapItem::Guard {
                     direction: direction.rotate_right(),
-                }
+                };
+                0
             }
             _ => unreachable!(),
-        }
-        walk_map_recursive(guard_map, guard_position);
+        };
+
+        walk_map_recursive(guard_map, guard_position) + newly_covered
+    } else {
+        1
     }
 }
 
 #[aoc(day6, part1, Thingy)]
 fn count_distinct_fields((guard_map, guard_position): &(GuardMap, (usize, usize))) -> u32 {
     let mut guard_map = guard_map.clone();
-    walk_map_recursive(&mut guard_map, *guard_position);
-
-    guard_map
-        .iter()
-        .filter(|item| {
-            matches!(
-                item,
-                GuardMapItem::Covered | GuardMapItem::Guard { direction: _ }
-            )
-        })
-        .count() as u32
+    walk_map_recursive(&mut guard_map, *guard_position)
 }
 
 #[cfg(test)]
