@@ -21,7 +21,7 @@ struct Rule {
     trailing: PageId,
 }
 
-fn compare(a: &PageId, b: &PageId, rules: &Vec<Rule>) -> Ordering {
+fn compare(a: &PageId, b: &PageId, rules: &[Rule]) -> Ordering {
     match rules.iter().find(|rule| {
         (rule.leading == *a && rule.trailing == *b) || (rule.trailing == *a && rule.leading == *b)
     }) {
@@ -83,7 +83,7 @@ fn generator(input: &str) -> (Vec<Rule>, Vec<Update>) {
     (rules, updates)
 }
 
-fn check_rules_for_update(rules: &Vec<Rule>, update: &Update) -> bool {
+fn check_rules_for_update(rules: &[Rule], update: &Update) -> bool {
     rules.iter().all(|rule| rule.satisfied(update))
 }
 
@@ -107,6 +107,7 @@ fn sum_middle_pages_fast(input: &(Vec<Rule>, Vec<Update>)) -> u32 {
         .sum()
 }
 
+#[allow(clippy::manual_inspect)]
 #[aoc(day5, part2, FilterByChecking)]
 fn sum_middle_pages_ordered(input: &(Vec<Rule>, Vec<Update>)) -> u32 {
     let (rules, updates) = input;

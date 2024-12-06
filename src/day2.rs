@@ -30,7 +30,7 @@ enum Direction {
 }
 
 #[aoc(day2, part1, Naïve)]
-pub fn count_safe_reports(input: &Vec<Vec<u32>>) -> u32 {
+pub fn count_safe_reports(input: &[Vec<u32>]) -> u32 {
     input
         .iter()
         .filter(|report| {
@@ -69,7 +69,7 @@ pub fn count_safe_reports(input: &Vec<Vec<u32>>) -> u32 {
 }
 
 #[aoc(day2, part1, Delta)]
-pub fn count_safe_reports_delta(input: &Vec<Vec<u32>>) -> u32 {
+pub fn count_safe_reports_delta(input: &[Vec<u32>]) -> u32 {
     input
         .iter()
         .filter(|report| {
@@ -96,7 +96,7 @@ pub fn count_safe_reports_delta(input: &Vec<Vec<u32>>) -> u32 {
 }
 
 #[aoc(day2, part1, Iterator)]
-pub fn count_safe_reports_iterator(input: &Vec<Vec<u32>>) -> u32 {
+pub fn count_safe_reports_iterator(input: &[Vec<u32>]) -> u32 {
     input
         .iter()
         .filter(|report| {
@@ -120,17 +120,17 @@ pub fn count_safe_reports_iterator(input: &Vec<Vec<u32>>) -> u32 {
 }
 
 #[aoc(day2, part2, Delta)]
-pub fn count_safe_reports_damped(input: &Vec<Vec<u32>>) -> u32 {
+pub fn count_safe_reports_damped(input: &[Vec<u32>]) -> u32 {
     input
         .iter()
         .filter(|report| {
-            if count_safe_reports_delta(&vec![(**report).clone()]) == 1 {
+            if count_safe_reports_delta(&[(**report).clone()]) == 1 {
                 true
             } else {
                 let single_report = report.iter();
                 for n in 0..report.len() {
                     // create an iterator without the nth element
-                    if count_safe_reports_delta(&vec![single_report
+                    if count_safe_reports_delta(&[single_report
                         .clone()
                         .enumerate()
                         .filter(move |(i, _)| *i != n)
@@ -147,17 +147,17 @@ pub fn count_safe_reports_damped(input: &Vec<Vec<u32>>) -> u32 {
         .count() as u32
 }
 #[aoc(day2, part2, Iterator)]
-pub fn count_safe_reports_damped_iterator(input: &Vec<Vec<u32>>) -> u32 {
+pub fn count_safe_reports_damped_iterator(input: &[Vec<u32>]) -> u32 {
     input
         .iter()
         .filter(|report| {
-            if count_safe_reports_iterator(&vec![(**report).clone()]) == 1 {
+            if count_safe_reports_iterator(&[(**report).clone()]) == 1 {
                 true
             } else {
                 let single_report = report.iter();
                 for n in 0..report.len() {
                     // create an iterator without the nth element
-                    if count_safe_reports_iterator(&vec![single_report
+                    if count_safe_reports_iterator(&[single_report
                         .clone()
                         .enumerate()
                         .filter(move |(i, _)| *i != n)
@@ -196,26 +196,26 @@ mod test {
         for (sample, expected_normal, expected_damped) in data {
             println!("testing {:?}", sample);
             assert_eq!(
-                count_safe_reports(&vec![sample.clone()]),
+                count_safe_reports(&[sample.clone()]),
                 if expected_normal { 1 } else { 0 },
                 "normal test for {:?} failed.",
                 sample
             );
             assert_eq!(
-                count_safe_reports_delta(&vec![sample.clone()]),
+                count_safe_reports_delta(&[sample.clone()]),
                 if expected_normal { 1 } else { 0 },
                 "normal delta test for {:?} failed.",
                 sample
             );
             assert_eq!(
-                count_safe_reports_iterator(&vec![sample.clone()]),
+                count_safe_reports_iterator(&[sample.clone()]),
                 if expected_normal { 1 } else { 0 },
                 "normal delta test for {:?} failed.",
                 sample
             );
 
             assert_eq!(
-                count_safe_reports_damped(&vec![sample.clone()]),
+                count_safe_reports_damped(&[sample.clone()]),
                 if expected_damped { 1 } else { 0 },
                 "damped test for {:?} failed.",
                 sample

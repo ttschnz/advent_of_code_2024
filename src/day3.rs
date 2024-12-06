@@ -24,12 +24,12 @@ impl MultiplicationGenerator {
             },
             MultiplicationGenerator::BracketLeft => new_char == '(',
             MultiplicationGenerator::FirstNumber { digits: _ } => {
-                ('0'..='9').contains(&new_char) || new_char == ','
+                new_char.is_ascii_digit() || new_char == ','
             }
             MultiplicationGenerator::SecondNumber {
                 first_number: _,
                 digits: _,
-            } => ('0'..='9').contains(&new_char) || new_char == ')',
+            } => new_char.is_ascii_digit() || new_char == ')',
 
             _ => false,
         }
