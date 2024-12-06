@@ -49,8 +49,7 @@ impl Rule {
             .is_some_and(|(trailing_index, _)| {
                 update[trailing_index..]
                     .iter()
-                    .find(|&&page| page == self.leading)
-                    .is_some()
+                    .any(|&page| page == self.leading)
             });
         !failed
     }
@@ -58,10 +57,10 @@ impl Rule {
 
 #[aoc_generator(day5)]
 fn generator(input: &str) -> (Vec<Rule>, Vec<Update>) {
-    let (_rules_done, rules, updates) = input.lines().into_iter().fold(
+    let (_rules_done, rules, updates) = input.lines().fold(
         (false, Vec::new(), Vec::new()),
         |(rules_done, mut rules, mut updates), line| {
-            if line == "" {
+            if line.is_empty() {
                 return (true, rules, updates);
             }
             if rules_done {

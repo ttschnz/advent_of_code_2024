@@ -17,7 +17,6 @@ pub fn input_generator(input: &str) -> Vec<Vec<u32>> {
         .lines()
         .map(|line| {
             line.split(' ')
-                .into_iter()
                 .map(|val| val.trim().parse::<u32>().unwrap())
                 .collect::<Vec<u32>>()
         })
@@ -33,9 +32,9 @@ enum Direction {
 #[aoc(day2, part1, Naïve)]
 pub fn count_safe_reports(input: &Vec<Vec<u32>>) -> u32 {
     input
-        .into_iter()
+        .iter()
         .filter(|report| {
-            let mut report = report.into_iter().peekable();
+            let mut report = report.iter().peekable();
             let mut is_safe = true;
             let mut direction = None;
 
@@ -91,7 +90,7 @@ pub fn count_safe_reports_delta(input: &Vec<Vec<u32>>) -> u32 {
 
                 last_delta_signum = Some(new_delta_signum);
             }
-            return true;
+            true
         })
         .count() as u32
 }
@@ -123,10 +122,10 @@ pub fn count_safe_reports_iterator(input: &Vec<Vec<u32>>) -> u32 {
 #[aoc(day2, part2, Delta)]
 pub fn count_safe_reports_damped(input: &Vec<Vec<u32>>) -> u32 {
     input
-        .into_iter()
+        .iter()
         .filter(|report| {
             if count_safe_reports_delta(&vec![(**report).clone()]) == 1 {
-                return true;
+                true
             } else {
                 let single_report = report.iter();
                 for n in 0..report.len() {
@@ -150,10 +149,10 @@ pub fn count_safe_reports_damped(input: &Vec<Vec<u32>>) -> u32 {
 #[aoc(day2, part2, Iterator)]
 pub fn count_safe_reports_damped_iterator(input: &Vec<Vec<u32>>) -> u32 {
     input
-        .into_iter()
+        .iter()
         .filter(|report| {
             if count_safe_reports_iterator(&vec![(**report).clone()]) == 1 {
-                return true;
+                true
             } else {
                 let single_report = report.iter();
                 for n in 0..report.len() {

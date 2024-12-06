@@ -24,12 +24,12 @@ impl MultiplicationGenerator {
             },
             MultiplicationGenerator::BracketLeft => new_char == '(',
             MultiplicationGenerator::FirstNumber { digits: _ } => {
-                '0' <= new_char && new_char <= '9' || new_char == ','
+                ('0'..='9').contains(&new_char) || new_char == ','
             }
             MultiplicationGenerator::SecondNumber {
                 first_number: _,
                 digits: _,
-            } => '0' <= new_char && new_char <= '9' || new_char == ')',
+            } => ('0'..='9').contains(&new_char) || new_char == ')',
 
             _ => false,
         }
@@ -117,7 +117,7 @@ pub fn evaluate_muls(input: &str, skip_donts: bool) -> u32 {
             skip_if_disabled(&mut chars);
         }
         let mut current_generator = MultiplicationGenerator::Indicator { index: 0 };
-        while let Some(new_char) = chars.next() {
+        for new_char in chars.by_ref() {
             if current_generator.is_valid(new_char) {
                 if let Some(new_mul) = current_generator.advance(new_char) {
                     result += new_mul.left as u32 * new_mul.right as u32;
@@ -137,7 +137,7 @@ pub fn evaluate_ignore_do_dont(input: &str) -> u32 {
     let mut chars = input.chars().peekable();
     while chars.peek().is_some() {
         let mut current_generator = MultiplicationGenerator::Indicator { index: 0 };
-        while let Some(new_char) = chars.next() {
+        for new_char in chars.by_ref() {
             if current_generator.is_valid(new_char) {
                 if let Some(new_mul) = current_generator.advance(new_char) {
                     result += new_mul.left as u32 * new_mul.right as u32;
@@ -158,7 +158,7 @@ pub fn evaluate_do_dont(input: &str) -> u32 {
     while chars.peek().is_some() {
         skip_if_disabled(&mut chars);
         let mut current_generator = MultiplicationGenerator::Indicator { index: 0 };
-        while let Some(new_char) = chars.next() {
+        for new_char in chars.by_ref() {
             if current_generator.is_valid(new_char) {
                 if let Some(new_mul) = current_generator.advance(new_char) {
                     result += new_mul.left as u32 * new_mul.right as u32;

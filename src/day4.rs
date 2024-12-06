@@ -25,7 +25,7 @@ fn generate_data(input: &str) -> Array2<XMasChar> {
     let column_count = input.find('\n').unwrap();
     let flattened = input
         .lines()
-        .map(|line| {
+        .flat_map(|line| {
             line.chars().map(|char| match char {
                 'X' => XMasChar::X,
                 'M' => XMasChar::M,
@@ -34,7 +34,6 @@ fn generate_data(input: &str) -> Array2<XMasChar> {
                 _ => panic!("unexpected character"),
             })
         })
-        .flatten()
         .collect::<Vec<_>>();
 
     let line_count = flattened.len() / column_count;
@@ -97,7 +96,7 @@ pub fn count_xmas(input: &Array2<XMasChar>) -> u32 {
     let dim = input.dim();
     input
         .indexed_iter()
-        .filter(|(_, &ref value)| *value == XMasChar::X)
+        .filter(|(_, value)| **value == XMasChar::X)
         .map(|(index, _)| {
             let match_count = get_xmas_directions(&index, &dim)
                 .iter()
@@ -131,9 +130,9 @@ pub fn count_cross_mas(input: &Array2<XMasChar>) -> u32 {
     let dim = input.dim();
     input
         .indexed_iter()
-        .filter(|(_, &ref value)| *value == XMasChar::A)
+        .filter(|(_, value)| **value == XMasChar::A)
         .filter(|(index, _)| {
-            get_cross_mas_directions(&index, &dim)
+            get_cross_mas_directions(index, &dim)
                 .iter()
                 .fold((0, 0), |mut acc, direction| {
                     match input[(
