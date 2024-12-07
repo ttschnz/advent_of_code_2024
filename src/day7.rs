@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
@@ -72,7 +73,7 @@ fn generate_equations(input: &str) -> Vec<Equation> {
 #[aoc(day7, part1)]
 fn sum_solveable_equations(equations: &[Equation]) -> usize {
     equations
-        .iter()
+        .par_iter()
         .filter_map(|equation| {
             if equation.solveable(false) {
                 Some(equation.solution)
@@ -86,7 +87,7 @@ fn sum_solveable_equations(equations: &[Equation]) -> usize {
 #[aoc(day7, part2)]
 fn sum_solveable_equations_concat(equations: &[Equation]) -> usize {
     equations
-        .iter()
+        .par_iter()
         .filter_map(|equation| {
             if equation.solveable(true) {
                 Some(equation.solution)
@@ -102,22 +103,31 @@ mod test {
     use crate::day7::sum_solveable_equations_concat;
 
     use super::{generate_equations, sum_solveable_equations};
+    const INPUT: &str = r#"190: 10 19
+3267: 81 40 27
+83: 17 5
+156: 15 6
+7290: 6 8 6 15
+161011: 16 10 13
+192: 17 8 14
+21037: 9 7 18 13
+292: 11 6 16 20"#;
 
     #[test]
     fn test_generator() {
-        let set = generate_equations("190: 10 19\n3267: 81 40 27\n83: 17 5\n156: 15 6\n7290: 6 8 6 15\n161011: 16 10 13\n192: 17 8 14\n21037: 9 7 18 13\n292: 11 6 16 20");
+        let set = generate_equations(INPUT);
         println!("{:?}", set);
     }
 
     #[test]
     fn test_pt1() {
-        let set = generate_equations("190: 10 19\n3267: 81 40 27\n83: 17 5\n156: 15 6\n7290: 6 8 6 15\n161011: 16 10 13\n192: 17 8 14\n21037: 9 7 18 13\n292: 11 6 16 20");
+        let set = generate_equations(INPUT);
         assert_eq!(sum_solveable_equations(&set), 3749);
     }
 
     #[test]
     fn test_pt2() {
-        let set = generate_equations("190: 10 19\n3267: 81 40 27\n83: 17 5\n156: 15 6\n7290: 6 8 6 15\n161011: 16 10 13\n192: 17 8 14\n21037: 9 7 18 13\n292: 11 6 16 20");
+        let set = generate_equations(INPUT);
         assert_eq!(sum_solveable_equations_concat(&set), 11387);
     }
 }
