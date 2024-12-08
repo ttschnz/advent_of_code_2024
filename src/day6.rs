@@ -1,5 +1,5 @@
 use ndarray::Array2;
-// #[cfg(test)]
+#[cfg(test)]
 use std::fmt::Display;
 use std::sync::{Arc, RwLock};
 
@@ -41,7 +41,7 @@ enum GuardMapItem {
     Covered,
 }
 
-// #[cfg(test)]
+#[cfg(test)]
 impl Display for GuardMapItem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let c = match self {
@@ -67,13 +67,43 @@ impl Display for GuardMapItem {
 type GuardMap = Array2<GuardMapItem>;
 
 #[aoc(day6, part1, Direct)]
-fn count_distinct_fields_direct(input: &str) -> u32 {
+pub fn count_distinct_fields_direct(input: &str) -> u32 {
     let (mut map, pos) = generate_map(input);
     match walk_map_recursive(&mut map, pos) {
         MapType::Exitable(result) => result,
         _ => panic!("given map for part 1 is a loop"),
     }
 }
+
+#[aoc(day6, part2, Direct)]
+pub fn count_obstruction_options_direct(input: &str) -> u32 {
+    let (initial_guard_map, guard_position) = generate_map(input);
+    let mut guard_map = initial_guard_map.clone();
+    walk_map_recursive(&mut guard_map, guard_position);
+    guard_map
+        .indexed_iter()
+        .filter_map(|(index, field)| {
+            if matches!(field, GuardMapItem::Covered) && index != guard_position {
+                Some(index)
+            } else {
+                None
+            }
+        })
+        .filter(|index| {
+            let mut modified = initial_guard_map.clone();
+            modified[*index] = GuardMapItem::Obstruction {
+                visited_direction: None,
+            };
+            matches!(
+                walk_map_recursive(&mut modified, guard_position),
+                MapType::Loop
+            )
+        })
+        .count() as u32
+}
+
+pub use count_distinct_fields_direct as part1;
+pub use count_obstruction_options_direct as part2;
 
 #[aoc_generator(day6)]
 fn generate_map(input: &str) -> (GuardMap, (usize, usize)) {
