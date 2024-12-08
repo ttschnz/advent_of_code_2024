@@ -1,9 +1,9 @@
 use ndarray::Array2;
-#[cfg(test)]
+// #[cfg(test)]
 use std::fmt::Display;
 use std::sync::{Arc, RwLock};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Direction {
     North,
     East,
@@ -32,24 +32,33 @@ impl Direction {
 #[derive(Debug, Copy, Clone)]
 enum GuardMapItem {
     Empty,
-    Guard { direction: Direction },
-    Obstruction,
+    Guard {
+        direction: Direction,
+    },
+    Obstruction {
+        visited_direction: Option<Direction>,
+    },
     Covered,
 }
 
-#[cfg(test)]
+// #[cfg(test)]
 impl Display for GuardMapItem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let c = match self {
-            GuardMapItem::Covered => '❚',
-            GuardMapItem::Empty => '.',
+            GuardMapItem::Covered => 'x',
+            GuardMapItem::Empty => ' ',
             GuardMapItem::Guard { direction } => match direction {
                 Direction::North => '^',
                 Direction::East => '>',
                 Direction::South => 'v',
                 Direction::West => '<',
             },
-            GuardMapItem::Obstruction => '#',
+            GuardMapItem::Obstruction {
+                visited_direction: None,
+            } => '#',
+            GuardMapItem::Obstruction {
+                visited_direction: Some(_),
+            } => '%',
         };
         write!(f, "{c}")
     }
@@ -60,7 +69,10 @@ type GuardMap = Array2<GuardMapItem>;
 #[aoc(day6, part1, Direct)]
 fn count_distinct_fields_direct(input: &str) -> u32 {
     let (mut map, pos) = generate_map(input);
-    walk_map_recursive(&mut map, pos)
+    match walk_map_recursive(&mut map, pos) {
+        MapType::Exitable(result) => result,
+        _ => panic!("given map for part 1 is a loop"),
+    }
 }
 
 #[aoc_generator(day6)]
@@ -81,7 +93,9 @@ fn generate_map(input: &str) -> (GuardMap, (usize, usize)) {
         line.chars().enumerate().map(move |(char_no, char)| {
             let item = match char {
                 '.' => GuardMapItem::Empty,
-                '#' => GuardMapItem::Obstruction,
+                '#' => GuardMapItem::Obstruction {
+                    visited_direction: None,
+                },
                 '^' => GuardMapItem::Guard {
                     direction: Direction::North,
                 },
@@ -115,7 +129,12 @@ fn generate_map(input: &str) -> (GuardMap, (usize, usize)) {
     (map, pos)
 }
 
-fn walk_map_recursive(guard_map: &mut GuardMap, mut guard_position: (usize, usize)) -> u32 {
+enum MapType {
+    Loop,
+    Exitable(u32),
+}
+
+fn walk_map_recursive(guard_map: &mut GuardMap, mut guard_position: (usize, usize)) -> MapType {
     let direction = match guard_map[guard_position] {
         GuardMapItem::Guard { direction } => direction,
         _ => unreachable!(),
@@ -126,7 +145,7 @@ fn walk_map_recursive(guard_map: &mut GuardMap, mut guard_position: (usize, usiz
         (guard_position.0 as isize + direction_vector.0) as usize,
         (guard_position.1 as isize + direction_vector.1) as usize,
     );
-    if let Some(item) = guard_map.get(new_position) {
+    if let Some(item) = guard_map.get_mut(new_position) {
         let newly_covered = match item {
             GuardMapItem::Covered => {
                 guard_map[new_position] = GuardMapItem::Guard { direction };
@@ -140,7 +159,12 @@ fn walk_map_recursive(guard_map: &mut GuardMap, mut guard_position: (usize, usiz
                 guard_position = new_position;
                 1
             }
-            GuardMapItem::Obstruction => {
+            GuardMapItem::Obstruction { visited_direction } => {
+                if visited_direction.is_some_and(|visited_direction| visited_direction == direction)
+                {
+                    return MapType::Loop;
+                }
+                *visited_direction = Some(direction);
                 guard_map[guard_position] = GuardMapItem::Guard {
                     direction: direction.rotate_right(),
                 };
@@ -149,20 +173,56 @@ fn walk_map_recursive(guard_map: &mut GuardMap, mut guard_position: (usize, usiz
             _ => unreachable!(),
         };
 
-        walk_map_recursive(guard_map, guard_position) + newly_covered
+        match walk_map_recursive(guard_map, guard_position) {
+            MapType::Exitable(fields) => MapType::Exitable(fields + newly_covered),
+            MapType::Loop => MapType::Loop,
+        }
     } else {
-        1
+        guard_map[guard_position] = GuardMapItem::Covered;
+        MapType::Exitable(1)
     }
 }
 
 #[aoc(day6, part1)]
 fn count_distinct_fields((guard_map, guard_position): &(GuardMap, (usize, usize))) -> u32 {
     let mut guard_map = guard_map.clone();
-    walk_map_recursive(&mut guard_map, *guard_position)
+    match walk_map_recursive(&mut guard_map, *guard_position) {
+        MapType::Exitable(result) => result,
+        _ => panic!("given map for part 1 is a loop"),
+    }
+}
+
+#[aoc(day6, part2)]
+fn count_obstruction_options((guard_map, guard_position): &(GuardMap, (usize, usize))) -> u32 {
+    let mut guard_map = guard_map.clone();
+    let initial_guard_map = guard_map.clone();
+    walk_map_recursive(&mut guard_map, *guard_position);
+    guard_map
+        .indexed_iter()
+        .filter_map(|(index, field)| {
+            if matches!(field, GuardMapItem::Covered) && index != *guard_position {
+                Some(index)
+            } else {
+                None
+            }
+        })
+        .filter(|index| {
+            let mut modified = initial_guard_map.clone();
+            modified[*index] = GuardMapItem::Obstruction {
+                visited_direction: None,
+            };
+            matches!(
+                walk_map_recursive(&mut modified, *guard_position),
+                MapType::Loop
+            )
+        })
+        .count() as u32
 }
 
 #[cfg(test)]
 mod test {
+    use crate::day6::count_obstruction_options;
+
     use super::{count_distinct_fields, generate_map, walk_map_recursive};
 
     #[test]
@@ -175,5 +235,11 @@ mod test {
     fn test_count_distinct_fields() {
         let (map, pos) =generate_map("....#.....\n.........#\n..........\n..#.......\n.......#..\n..........\n.#..^.....\n........#.\n#.........\n......#...");
         assert_eq!(count_distinct_fields(&(map, pos)), 41);
+    }
+
+    #[test]
+    fn test_count_obstruction_options() {
+        let (map, pos) =generate_map("....#.....\n.........#\n..........\n..#.......\n.......#..\n..........\n.#..^.....\n........#.\n#.........\n......#...");
+        assert_eq!(count_obstruction_options(&(map, pos)), 6);
     }
 }
