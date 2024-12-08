@@ -98,6 +98,12 @@ fn sum_solveable_equations_concat(equations: &[Equation]) -> usize {
         .sum::<f64>() as usize
 }
 
+pub fn part1(input: &str) -> usize {
+    sum_solveable_equations(&generate_equations(input))
+}
+pub fn part2(input: &str) -> usize {
+    sum_solveable_equations_concat(&generate_equations(input))
+}
 #[cfg(test)]
 mod test {
     use crate::day7::sum_solveable_equations_concat;
