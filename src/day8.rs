@@ -113,6 +113,14 @@ fn count_unique_antinodes_depth_2((maps, dim): &(Vec<Map>, Dim)) -> u32 {
     positions.iter().count() as u32
 }
 
+pub fn part1(input: &str) -> u32 {
+    count_unique_antinodes(&generate_maps(input))
+}
+
+pub fn part2(input: &str) -> u32 {
+    count_unique_antinodes_depth_2(&generate_maps(input))
+}
+
 #[cfg(test)]
 mod test {
     use super::{count_unique_antinodes, count_unique_antinodes_depth_2, generate_maps};
