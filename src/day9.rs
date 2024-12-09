@@ -161,6 +161,13 @@ fn consolidate_memory_fit((files, free_spaces): &(Vec<File>, Vec<FreeSpace>)) ->
     })
 }
 
+pub fn part1(input: &str) -> usize {
+    consolidate_memory(&read_memory(input))
+}
+pub fn part2(input: &str) -> usize {
+    consolidate_memory_fit(&read_memory_to_blocks(input))
+}
+
 #[cfg(test)]
 mod test {
     use super::{consolidate_memory, consolidate_memory_fit, read_memory, read_memory_to_blocks};
