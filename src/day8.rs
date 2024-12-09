@@ -101,7 +101,7 @@ fn count_unique_antinodes((maps, dim): &(Vec<Map>, Dim)) -> u32 {
         .flat_map(|map| get_antinode_locs(map, dim, 1, false))
         .collect::<HashSet<Position>>();
 
-    positions.iter().count() as u32
+    positions.len() as u32
 }
 #[aoc(day8, part2)]
 fn count_unique_antinodes_depth_2((maps, dim): &(Vec<Map>, Dim)) -> u32 {
@@ -110,7 +110,7 @@ fn count_unique_antinodes_depth_2((maps, dim): &(Vec<Map>, Dim)) -> u32 {
         .flat_map(|map| get_antinode_locs(map, dim, *dim, true))
         .collect::<HashSet<Position>>();
 
-    positions.iter().count() as u32
+    positions.len() as u32
 }
 
 pub fn part1(input: &str) -> u32 {
@@ -144,8 +144,8 @@ mod test {
         assert_eq!(
             maps,
             vec![
-                vec![(6, 5), (8, 8), (9, 9)],
-                vec![(8, 1), (5, 2), (7, 3), (4, 4)],
+                vec![(1, 8), (2, 5), (3, 7), (4, 4)],
+                vec![(5, 6), (8, 8), (9, 9)],
             ]
         )
     }
