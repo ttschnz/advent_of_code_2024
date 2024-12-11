@@ -30,8 +30,9 @@ fn blink(stone: &Stone, depth: u8, lookup: Arc<RwLock<HashMap<(Stone, u8), usize
                     digit_count += 1;
                 }
                 if digit_count % 2 == 0 {
-                    let left_stone = stone / (10_usize.pow(digit_count / 2));
-                    let right_stone = stone - left_stone * 10_usize.pow(digit_count / 2);
+                    let pow = 10_usize.pow(digit_count / 2);
+                    let left_stone = stone / pow;
+                    let right_stone = stone - left_stone * pow;
                     let left_count = blink(&left_stone, depth - 1, lookup.clone());
                     let right_count = blink(&right_stone, depth - 1, lookup.clone());
                     left_count + right_count
@@ -55,13 +56,13 @@ pub fn count_stones_after_blink(input: &str) -> usize {
         acc + blink(&stone_str.parse::<Stone>().unwrap(), 25, lookup.clone())
     })
 }
+
 #[aoc(day11, part2)]
 pub fn count_stones_after_blink_many(input: &str) -> usize {
     let lookup = Arc::new(RwLock::new(HashMap::new()));
-    input
-        .split(" ")
-        .map(|stone_str| blink(&stone_str.parse::<Stone>().unwrap(), 75, lookup.clone()))
-        .sum()
+    input.split(" ").fold(0, |acc, stone_str| {
+        acc + blink(&stone_str.parse::<Stone>().unwrap(), 75, lookup.clone())
+    })
 }
 
 pub use count_stones_after_blink as part1;
